@@ -2,6 +2,7 @@
   "PRIVATE_KEY": "0x123",
   "RPC_URL": "https://mainnet.optimism.io",
   "COMPETITION_ADDRESS": "0xd97e25A64383C2A4cf5AC1Af122Cba998381f2b1",
+  "WEBHOOK_URL": "https://discord.com/api/webhooks/...",
   "gas": {
     "maxFeePerGas": "10000000",
     "maxPriorityFeePerGas": "1"

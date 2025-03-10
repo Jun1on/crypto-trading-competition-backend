@@ -1,6 +1,6 @@
 const { ethers } = require("ethers")
 const { competitionAbi, erc20Abi, routerAbi } = require('./abi')
-const { balanceOf } = require('./util')
+const { balanceOf, sendDiscordMessage } = require('./util')
 const ROUTER_ADDRESS = "0x4A7b5Da61326A6379179b40d00F57E5bbDC962c2"
 const config = require('./config')
 
@@ -21,7 +21,7 @@ async function main() {
     let newRound = false
     while (true) {
         const currentToken = await competition.currentToken()
-        if (currentToken === ethers.AddressZero) {
+        if (currentToken === ethers.ZeroAddress) {
             console.log("Waiting for round to start...")
             await new Promise(resolve => setTimeout(resolve, 2000))
             newRound = true
@@ -30,7 +30,8 @@ async function main() {
 
         const token = new ethers.Contract(currentToken, erc20Abi, wallet)
         if (newRound) {
-            // todo: announce new round
+            // todo: make message better
+            sendDiscordMessage(`New Round: ${currentToken}`)
             await token.approve(ROUTER_ADDRESS, ethers.MaxUint256, gas)
             console.log(`Approved router for ${currentToken}`)
             newRound = false
@@ -79,8 +80,6 @@ async function main() {
                 continue
             }
 
-            console.log(5, ethers.parseEther("5"))
-
             const path = [inputToken, outputToken]
             const amountOutMin = 0 // 100% slippage
             const deadline = ethers.MaxUint256
@@ -99,7 +98,7 @@ async function main() {
                 console.error(`Swap failed: ${error.message}`)
             }
 
-            await new Promise(resolve => setTimeout(resolve, 15000))
+            await new Promise(resolve => setTimeout(resolve, 10000))
         }
     }
 }
