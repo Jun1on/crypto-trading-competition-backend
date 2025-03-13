@@ -42,7 +42,7 @@ const generationConfig = {
                 type: "string"
             },
             percentage: {
-                type: "integer"
+                type: "number"
             }
         }
     },
@@ -67,18 +67,6 @@ async function getTradeDecision(model, prompt) {
         action: Math.random() > 0.5 ? "buy" : "sell",
         percentage: Math.floor(Math.random() * 10) + 1
     }
-}
-function parseResponse(text) {
-    const actionMatch = text.match(/Action:\s*(buy|sell)/i)
-    const percentageMatch = text.match(/Percentage:\s*(\d+(?:\.\d+)?)/i)
-    if (actionMatch && percentageMatch) {
-        const action = actionMatch[1].toLowerCase()
-        const percentage = parseFloat(percentageMatch[1])
-        if (percentage > 0 && percentage <= 100) {
-            return { action, percentage }
-        }
-    }
-    return null
 }
 
 module.exports = {

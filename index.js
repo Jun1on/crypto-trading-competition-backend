@@ -90,7 +90,9 @@ async function main() {
                 }
             }
 
-            const promptTemplate = await fs.readFile("prompt.txt", "utf8")
+            const fileArgs = (await fs.readFile("prompt.txt", "utf8")).split(" // multiplier")
+            const multiplier = fileArgs[0] * 0.999
+            const promptTemplate = fileArgs[1]
 
             const prompt = promptTemplate
                 .replace("{usdmBalance}", usdmBalance.toFixed(4))
@@ -105,11 +107,11 @@ async function main() {
             if (action.toLowerCase() === "buy") {
                 inputToken = usdm.target
                 outputToken = currentToken
-                amountIn = usdmBalance * percentage / 100 * 0.999
+                amountIn = usdmBalance * percentage / 100 * multiplier
             } else {
                 inputToken = currentToken
                 outputToken = usdm.target
-                amountIn = tokenBalance * percentage / 100 * 0.999
+                amountIn = tokenBalance * percentage / 100 * multiplier
             }
 
             if (amountIn < 0.001) {
