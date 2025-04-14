@@ -1,10 +1,12 @@
 {
+  "COMPETITION_ADDRESS": "0xd97e25A64383C2A4cf5AC1Af122Cba998381f2b1",
+  "PERIPHERY_ADDRESS": "0x0Da9f3D74444d47724838e6475F26Ff989b3Aa01",
   "PRIVATE_KEY": "0x123",
   "RPC_URL": "https://mainnet.optimism.io",
-  "COMPETITION_ADDRESS": "0xd97e25A64383C2A4cf5AC1Af122Cba998381f2b1",
   "WEBHOOK_URL": "https://discord.com/api/webhooks/...",
   "GEMINI_API_KEY": "AI...",
   "gas": {
+    "gasLimit": "1000000",
     "maxFeePerGas": "10000000",
     "maxPriorityFeePerGas": "1"
   }

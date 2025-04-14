@@ -1,5 +1,5 @@
 const { ethers } = require("ethers")
-const { competitionAbi, erc20Abi, routerAbi, factoryAbi } = require("./abi")
+const { competitionAbi, erc20Abi, routerAbi, factoryAbi, peripheryAbi } = require("./abi")
 const { balanceOf, sendDiscordMessage, getTradeDecision } = require("./util")
 const fs = require("fs").promises
 const { GoogleGenerativeAI } = require("@google/generative-ai")
@@ -14,6 +14,7 @@ async function main() {
     const competition = new ethers.Contract(config.COMPETITION_ADDRESS, competitionAbi, wallet)
     const router = new ethers.Contract(ROUTER_ADDRESS, routerAbi, wallet)
     const factory = new ethers.Contract(FACTORY_ADDRESS, factoryAbi, wallet)
+    const periphery = new ethers.Contract(config.PERIPHERY_ADDRESS, peripheryAbi, wallet)
     const gas = config.gas
     const genAI = new GoogleGenerativeAI(config.GEMINI_API_KEY)
     const model = genAI.getGenerativeModel({
@@ -30,10 +31,10 @@ async function main() {
 
     let newRound = false
     while (true) {
-        const currentToken = await competition.currentToken()
+        const currentToken = await periphery.currentToken(config.COMPETITION_ADDRESS)
         if (currentToken === ethers.ZeroAddress) {
             console.log("Waiting for round to start...")
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            await new Promise(resolve => setTimeout(resolve, 5000))
             newRound = true
             continue
         }
@@ -57,7 +58,7 @@ async function main() {
         let priceHistory = []
         let tradeHistory = []
         while (true) {
-            const latestCurrentToken = await competition.currentToken()
+            const latestCurrentToken = await periphery.currentToken(config.COMPETITION_ADDRESS)
             if (latestCurrentToken !== currentToken) {
                 console.log("Round ended, exiting trading loop.")
                 newRound = true
@@ -114,7 +115,7 @@ async function main() {
                 amountIn = tokenBalance * percentage / 100 * multiplier
             }
 
-            if (amountIn < 0.001) {
+            if (amountIn < 0.00001) {
                 console.log("Insufficient balance...")
                 await new Promise(resolve => setTimeout(resolve, 4000))
                 continue
@@ -125,7 +126,7 @@ async function main() {
             const deadline = ethers.MaxUint256
             try {
                 const tx = await router.swapExactTokensForTokens(
-                    ethers.parseEther(amountIn.toString()),
+                    parseEther(amountIn),
                     amountOutMin,
                     path,
                     wallet.address,
@@ -141,6 +142,10 @@ async function main() {
             await new Promise(resolve => setTimeout(resolve, 4000))
         }
     }
+}
+
+function parseEther(amount) {
+    return ethers.parseEther(amount.toFixed(18))
 }
 
 main().catch(error => {

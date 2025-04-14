@@ -1,7 +1,10 @@
 export const competitionAbi = [
-    "function currentToken() view returns (address)",
     "function USDM() view returns (address)"
 ];
+
+export const peripheryAbi = [
+    "function currentToken(address) view returns (address)"
+]
 
 export const erc20Abi = [
     "function balanceOf(address) view returns (uint256)",
