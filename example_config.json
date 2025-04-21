@@ -3,7 +3,6 @@
   "PERIPHERY_ADDRESS": "0x0Da9f3D74444d47724838e6475F26Ff989b3Aa01",
   "PRIVATE_KEY": "0x123",
   "RPC_URL": "https://mainnet.optimism.io",
-  "WEBHOOK_URL": "https://discord.com/api/webhooks/...",
   "GEMINI_API_KEY": "AI...",
   "gas": {
     "gasLimit": "1000000",

@@ -15,20 +15,6 @@ async function balanceOf(owner, token) {
     return Number(ethers.formatEther(output))
 }
 
-async function sendDiscordMessage(message, username = 'Trading Competition', avatarUrl) {
-    const payload = {
-        content: message,
-        username,
-        avatar_url: avatarUrl
-    };
-
-    try {
-        await axios.post(config.WEBHOOK_URL, payload);
-    } catch (error) {
-        console.error('Error sending discord message:', error);
-    }
-}
-
 const generationConfig = {
     temperature: 2,
     topP: 0.95,
@@ -48,7 +34,6 @@ const generationConfig = {
     },
 };
 async function getTradeDecision(model, prompt) {
-    console.log("prompt", prompt)
     try {
         const result = await model.generateContent({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -69,8 +54,34 @@ async function getTradeDecision(model, prompt) {
     }
 }
 
+function estimatePriceImpact(poolUSD, poolToken, userBalance, percentage, isBuy) {
+    const k = poolUSD * poolToken;
+    const fee = 0.997; // Uniswap V2 fee multiplier (1 - 0.003)
+    let newPoolUSD, newPoolToken;
+
+    if (isBuy) { // Buying Token with USD
+        const amountUSDIn = userBalance * (percentage / 100);
+        if (amountUSDIn <= 0 || poolUSD <= 0) return null; // Avoid invalid calculations
+        newPoolUSD = poolUSD + amountUSDIn * fee; // Add USD (approx fee adjust)
+        if (newPoolUSD <= 0) return null;
+        newPoolToken = k / newPoolUSD; // Calculate new Token reserve
+    } else { // Selling Token for USD
+        const amountTokenIn = userBalance * (percentage / 100);
+        if (amountTokenIn <= 0 || poolToken <= 0) return null; // Avoid invalid calculations
+        newPoolToken = poolToken + amountTokenIn * fee; // Add Token (approx fee adjust)
+        if (newPoolToken <= 0) return null;
+        newPoolUSD = k / newPoolToken; // Calculate new USD reserve
+    }
+    if (newPoolToken <= 0) return null; // Avoid division by zero
+    return newPoolUSD / newPoolToken; // Return the new price
+}
+
+function parseEther(n) {
+    return ethers.parseEther(n.toFixed(18));
+}
 module.exports = {
     balanceOf,
-    sendDiscordMessage,
-    getTradeDecision
+    getTradeDecision,
+    estimatePriceImpact,
+    parseEther,
 }
